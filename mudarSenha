@@ -1,0 +1,49 @@
+//Custom Function para mudar a senha dentro do Flutterflow
+//nome da function deve ser: mudarSenha
+//return value = boolean
+//argument 1 = senhaAtual do tipo string
+//argument 2 = novasenha do tipo string
+
+// Automatic FlutterFlow imports
+import '/backend/backend.dart';
+import '/flutter_flow/flutter_flow_theme.dart';
+import '/flutter_flow/flutter_flow_util.dart';
+import '/custom_code/actions/index.dart'; // Imports other custom actions
+import '/flutter_flow/custom_functions.dart'; // Imports custom functions
+import 'package:flutter/material.dart';
+// Begin custom action code
+// DO NOT REMOVE OR MODIFY THE CODE ABOVE!
+
+import 'package:firebase_auth/firebase_auth.dart';
+
+Future<bool> mudarSenha(
+  BuildContext context,
+  String senhaAtual,
+  String novasenha,
+) async {
+  // Add your function code here!
+  bool success = false;
+
+  //Create an instance of the current user.
+  var user = await FirebaseAuth.instance.currentUser!;
+  //Must re-authenticate user before updating the password. Otherwise it may fail or user get signed out.
+
+  final cred = await EmailAuthProvider.credential(
+      email: user.email!, password: senhaAtual);
+  await user.reauthenticateWithCredential(cred).then((value) async {
+    await user.updatePassword(novasenha).then((_) {
+      success = true;
+      var uid;
+      var usersRef;
+      usersRef.doc(uid).update({"password": novasenha});
+    }).catchError((error) {
+      print(error);
+    });
+  }).catchError((err) {
+    print(err);
+  });
+
+  return success;
+}
+// Set your action name, define your arguments and return parameter,
+// and then add the boilerplate code using the green button on the right!
